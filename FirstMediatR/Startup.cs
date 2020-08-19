@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using MediatR;
 using FirstMediatR.CQRS.Queries;
 using FirstMediatR.Infrastructure;
+using FirstMediatR.CQRS.Pipepline;
+using FluentValidation.AspNetCore;
 
 namespace FirstMediatR
 {
@@ -28,10 +30,11 @@ namespace FirstMediatR
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddScoped<ICarRepository, CarRepository>();
-            services.AddSingleton<ICarRepository, CarRepository>();
-            services.AddMediatR(typeof(GetCarQuery).Assembly);
-            services.AddControllers();
+            services.AddSingleton<ICarRepository, CarRepository>()
+                .AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidatePipeline<,>))
+                .AddMediatR(typeof(Startup))
+                .AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

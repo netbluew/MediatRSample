@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FirstMediatR.CQRS.Models;
 using FirstMediatR.Infrastructure;
 using MediatR;
+using FluentValidation;
 
 namespace FirstMediatR.CQRS.Commands
 {
@@ -26,6 +27,15 @@ namespace FirstMediatR.CQRS.Commands
         {
             var idx = repository.AddNewCar(request.Name, request.Company);
             return Task.FromResult<Car>(repository.GetCarByIdx(idx));
+        }
+    }
+
+    public class CreateCarCommandValidator : AbstractValidator<CreateCarCommand>
+    {
+        public CreateCarCommandValidator()
+        {
+            RuleFor(command => command.Name).NotEmpty().MinimumLength(2).MaximumLength(10);
+            RuleFor(command => command.Company).NotEmpty().MinimumLength(2).MaximumLength(10);
         }
     }
 }
